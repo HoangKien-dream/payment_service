@@ -1,5 +1,6 @@
 package com.example.paymentservice.config;
 
+import com.example.paymentservice.enums.Status;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,11 @@ public class RecieveMessage {
     @RabbitListener(queues = {QUEUE_PAY})
     public void getMessage(OrderEvent orderEvent){
         orderEvent.setQueueName("QUEUE_PAY");
-        if (orderEvent.getStatusInventory().equals("PENDING")){
+        if (orderEvent.getStatusPayment().equals("PENDING")){
             consumerService.getMessage(orderEvent);
         }
-        else {
-           consumerService.getMessageReturn(orderEvent);
+        if (orderEvent.getStatusOrder().equals(Status.OrderStatus.CANCEL.name())){
+            consumerService.getMessageReturn(orderEvent);
         }
     }
 }

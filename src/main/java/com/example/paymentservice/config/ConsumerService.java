@@ -31,6 +31,11 @@ public class ConsumerService {
     }
 
     public void getMessageReturn(OrderEvent orderEvent){
-
+        Wallet wallet = repositoryWallet.findById(orderEvent.getUserId()).orElse(null);
+            int amount = wallet.getAmount() + orderEvent.getTotalPrice();
+            wallet.setAmount(amount);
+            orderEvent.setStatusPayment(Status.PaymentStatus.REFUNDED.name());
+            rabbitTemplate.convertAndSend(MessageConfig.DIRECT_EXCHANGE,MessageConfig.DIRECT_ROUTING_KEY_ORDER,orderEvent);
+            repositoryWallet.save(wallet);
     }
 }
